@@ -1,9 +1,12 @@
 'use strict'
 
 class UserController {
+  const User = use('app/Model/User');
 
   * index(request, response) {
-    //
+    const users = yield User.with().fetch();
+
+    response.jsonApi('User', users);
   }
 
   * create(request, response) {
@@ -11,7 +14,6 @@ class UserController {
   }
 
   * store(request, response) {
-    const User = use('app/Model/User');
     const Hash = use('Hash');
     const input = request.only('email', 'username', 'password');
     input.password = yield Hash.make(input.password);

@@ -1,22 +1,19 @@
 'use strict'
 
+const Post = use('App/Model/Post')
 class PostController {
+  * index(request, response) {
+    const posts = yield Post.with().fetch();
+
+    response.jsonApi('Post', posts);
+  }
+
   * store(request, response) {
-    const Hash = use('Hash');
-    const input = request.only('username', 'password');
+    const userId = request.authUser.id;
+    const input = request.only('body', userId);
+    const post = Post.create(input);
 
-    try {
-      const user = yield User.findBy('email', input.email);
-
-      yield Hash.verify(input.password, user.password);
-      const jwt = yield request.auth.generate(user);
-
-      return response.json({ access_token: jwt });
-    } catch(e) {
-      return response.status(401).json({
-        error: 'User failed to login'
-      });
-    }
+    response.send(post);
   }
 }
 

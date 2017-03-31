@@ -1,16 +1,12 @@
 'use strict'
 
 class UserController {
-  const User = use('app/Model/User');
+  const User = use('App/Model/User');
 
   * index(request, response) {
     const users = yield User.with().fetch();
 
     response.jsonApi('User', users);
-  }
-
-  * create(request, response) {
-    //
   }
 
   * store(request, response) {
@@ -20,25 +16,26 @@ class UserController {
 
     const newUser = yield User.create(input);
 
-    response.json(newUser.toJSON());
+    response.send(newUser);
   }
 
-  * show(request, response) {
-    //
-  }
+  * login(request, response) {
+    const Hash = use('Hash');
+    const input = request.only('username', 'password');
 
-  * edit(request, response) {
-    //
-  }
+    try {
+      const user = yield User.findBy('email', input.email);
 
-  * update(request, response) {
-    //
-  }
+      yield Hash.verify(input.password, user.password);
+      const jwt = yield request.auth.generate(user);
 
-  * destroy(request, response) {
-    //
+      return response.json({ access_token: jwt });
+    } catch(e) {
+      return response.status(401).json({
+        error: 'User failed to login'
+      });
+    }
   }
-
 }
 
 module.exports = UserController

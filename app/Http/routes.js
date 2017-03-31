@@ -17,4 +17,8 @@
 
 const Route = use('Route')
 
-Route.on('/').render('welcome')
+Route.on('/').render('welcome');
+
+Route.post('/users', function * (request, response) {
+
+})
